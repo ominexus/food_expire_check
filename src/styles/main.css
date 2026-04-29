@@ -1,0 +1,33 @@
+@import './variables.css';
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: calc(var(--spacing-unit) * 2);
+}
+
+.card {
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacing-unit) * 2);
+  margin-bottom: calc(var(--spacing-unit) * 2);
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.timeline-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.status-safe { color: var(--color-safe); }
+.status-warning { color: var(--color-warning); }
+.status-danger { color: var(--color-danger); }
+
+.bg-safe { background-color: var(--color-safe); }
+.bg-warning { background-color: var(--color-warning); }
+.bg-danger { background-color: var(--color-danger); }
