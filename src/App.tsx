@@ -10,6 +10,7 @@ interface Ingredient {
   category: string;
   expires_at: string;
   is_consumed: boolean;
+  image_url?: string;
 }
 
 function App() {
@@ -36,9 +37,9 @@ function App() {
       // Mock data for demo if Supabase is not connected
       if (!import.meta.env.VITE_SUPABASE_URL) {
         setIngredients([
-          { id: '1', name: 'Milk', category: '🥛', expires_at: new Date(Date.now() + 2*24*60*60*1000).toISOString(), is_consumed: false },
-          { id: '2', name: 'Spinach', category: '🥬', expires_at: new Date(Date.now() - 1*24*60*60*1000).toISOString(), is_consumed: false },
-          { id: '3', name: 'Eggs', category: '🥚', expires_at: new Date(Date.now() + 10*24*60*60*1000).toISOString(), is_consumed: false },
+          { id: '1', name: 'Milk', category: '🥛', expires_at: new Date(Date.now() + 2*24*60*60*1000).toISOString(), is_consumed: false, image_url: 'https://loremflickr.com/300/300/milk,food/all' },
+          { id: '2', name: 'Spinach', category: '🥬', expires_at: new Date(Date.now() - 1*24*60*60*1000).toISOString(), is_consumed: false, image_url: 'https://loremflickr.com/300/300/spinach,food/all' },
+          { id: '3', name: 'Eggs', category: '🥚', expires_at: new Date(Date.now() + 10*24*60*60*1000).toISOString(), is_consumed: false, image_url: 'https://loremflickr.com/300/300/eggs,food/all' },
         ]);
       }
     } finally {
@@ -46,9 +47,9 @@ function App() {
     }
   }
 
-  async function addIngredient(name: string, category: string, expiresAt: string) {
+  async function addIngredient(name: string, category: string, expiresAt: string, imageUrl?: string) {
     try {
-      const newIngredient = { name, category, expires_at: expiresAt, is_consumed: false };
+      const newIngredient = { name, category, expires_at: expiresAt, is_consumed: false, image_url: imageUrl };
       
       const { data, error } = await supabase
         .from('ingredients')
@@ -60,7 +61,7 @@ function App() {
     } catch (error) {
       console.error('Error adding ingredient:', error);
       // Local update for demo
-      const mockNew = { id: Math.random().toString(), name, category, expires_at: expiresAt, is_consumed: false };
+      const mockNew = { id: Math.random().toString(), name, category, expires_at: expiresAt, is_consumed: false, image_url: imageUrl };
       setIngredients(prev => [...prev, mockNew].sort((a, b) => a.expires_at.localeCompare(b.expires_at)));
     }
   }

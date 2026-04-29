@@ -12,22 +12,25 @@ const PRESETS = [
 ];
 
 interface Props {
-  onAdd: (name: string, category: string, expiresAt: string) => void;
+  onAdd: (name: string, category: string, expiresAt: string, imageUrl?: string) => void;
 }
 
 export const AddPanel: React.FC<Props> = ({ onAdd }) => {
   const [name, setName] = useState('');
+  const [date, setDate] = useState(getExpiryFromDays(7));
   const [showManual, setShowManual] = useState(false);
 
   const handlePresetClick = (preset: typeof PRESETS[0]) => {
     const expiry = getExpiryFromDays(preset.days);
-    onAdd(preset.name, preset.icon, expiry);
+    const imageUrl = `https://loremflickr.com/300/300/${preset.name.toLowerCase()},food/all`;
+    onAdd(preset.name, preset.icon, expiry, imageUrl);
   };
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
-    onAdd(name, '🍽️', getExpiryFromDays(7)); // Default 7 days for manual
+    const imageUrl = `https://loremflickr.com/300/300/${name.toLowerCase()},food/all`;
+    onAdd(name, '🍽️', date, imageUrl);
     setName('');
     setShowManual(false);
   };
@@ -77,33 +80,63 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
           <span>Manual Add</span>
         </button>
       ) : (
-        <form onSubmit={handleManualSubmit} style={{ display: 'flex', gap: '8px' }}>
+        <form onSubmit={handleManualSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Item name..."
+            placeholder="Item name (e.g. Apple)"
             style={{
-              flex: 1,
-              padding: '8px',
+              padding: '10px',
               borderRadius: '8px',
               border: '1px solid #cbd5e1'
             }}
             autoFocus
           />
-          <button
-            type="submit"
-            style={{
-              padding: '8px 16px',
-              background: 'var(--color-safe)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer'
-            }}
-          >
-            Add
-          </button>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Expires:</span>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              style={{
+                flex: 1,
+                padding: '8px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1'
+              }}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={() => setShowManual(false)}
+              style={{
+                flex: 1,
+                padding: '10px',
+                background: '#e2e8f0',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              style={{
+                flex: 2,
+                padding: '10px',
+                background: 'var(--color-safe)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              Add Item
+            </button>
+          </div>
         </form>
       )}
     </div>
