@@ -81,7 +81,7 @@ function App() {
     }
   }
 
-  const expiredCount = ingredients.filter(i => new Date(i.expires_at) < new Date().setHours(0,0,0,0)).length;
+  const expiredCount = ingredients.filter(i => new Date(i.expires_at).getTime() < new Date().setHours(0,0,0,0)).length;
 
   return (
     <div className="container">
