@@ -52,7 +52,8 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
   const handlePresetClick = (preset: typeof PRESETS[0]) => {
     const expiry = getExpiryFromDays(preset.days);
     const searchTerm = getSearchTerm(preset.name);
-    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},food/all`;
+    // Add illustration,vector tags to get a more stylized look
+    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},illustration,vector/all`;
     onAdd(preset.name, preset.icon, expiry, imageUrl);
   };
 
@@ -60,7 +61,8 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
     e.preventDefault();
     if (!name) return;
     const searchTerm = getSearchTerm(name);
-    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},food/all`;
+    // Add illustration,vector tags to get a more stylized look
+    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},illustration,vector/all`;
     onAdd(name, '🍽️', date, imageUrl);
     setName('');
     setShowManual(false);
