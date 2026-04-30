@@ -3,13 +3,22 @@ import { getExpiryFromDays } from '../utils/date-utils';
 import { PlusCircle, Loader2 } from 'lucide-react';
 import { fetchFoodImage } from '../utils/image-service';
 
-const PRESETS = [
+const FOOD_PRESETS = [
   { name: '우유', days: 7, icon: '🥛' },
   { name: '계란', days: 14, icon: '🥚' },
   { name: '고기', days: 3, icon: '🥩' },
   { name: '야채', days: 5, icon: '🥦' },
   { name: '빵', days: 4, icon: '🍞' },
   { name: '과일', days: 7, icon: '🍎' },
+];
+
+const SEASONING_PRESETS = [
+  { name: '소금', days: 365, icon: '🧂' },
+  { name: '설탕', days: 365, icon: '🍬' },
+  { name: '간장', days: 180, icon: '🍶' },
+  { name: '고추장', days: 180, icon: '🌶️' },
+  { name: '식용유', days: 180, icon: '🧴' },
+  { name: '참기름', days: 90, icon: '🏺' },
 ];
 
 interface Props {
@@ -21,8 +30,9 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
   const [date, setDate] = useState(getExpiryFromDays(7));
   const [showManual, setShowManual] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [activeTab, setActiveTab] = useState<'food' | 'seasoning'>('food');
 
-  const handlePresetClick = async (preset: typeof PRESETS[0]) => {
+  const handlePresetClick = async (preset: { name: string, days: number, icon: string }) => {
     if (isSearching) return;
     setIsSearching(true);
     const expiry = getExpiryFromDays(preset.days);
@@ -44,10 +54,46 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
     setShowManual(false);
   };
 
+  const currentPresets = activeTab === 'food' ? FOOD_PRESETS : SEASONING_PRESETS;
+
   return (
     <div className="card" style={{ border: '2px dashed #cbd5e1', background: '#f1f5f9' }}>
+      {/* Tab Header */}
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '12px', background: '#e2e8f0', padding: '4px', borderRadius: '10px' }}>
+        <button
+          onClick={() => setActiveTab('food')}
+          style={{
+            flex: 1,
+            padding: '8px',
+            border: 'none',
+            borderRadius: '7px',
+            background: activeTab === 'food' ? 'white' : 'transparent',
+            fontWeight: activeTab === 'food' ? 'bold' : 'normal',
+            cursor: 'pointer',
+            fontSize: '0.9rem'
+          }}
+        >
+          Ingredients
+        </button>
+        <button
+          onClick={() => setActiveTab('seasoning')}
+          style={{
+            flex: 1,
+            padding: '8px',
+            border: 'none',
+            borderRadius: '7px',
+            background: activeTab === 'seasoning' ? 'white' : 'transparent',
+            fontWeight: activeTab === 'seasoning' ? 'bold' : 'normal',
+            cursor: 'pointer',
+            fontSize: '0.9rem'
+          }}
+        >
+          Seasonings
+        </button>
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '12px' }}>
-        {PRESETS.map((preset) => (
+        {currentPresets.map((preset) => (
           <button
             key={preset.name}
             disabled={isSearching}
