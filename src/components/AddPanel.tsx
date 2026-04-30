@@ -52,8 +52,9 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
   const handlePresetClick = (preset: typeof PRESETS[0]) => {
     const expiry = getExpiryFromDays(preset.days);
     const searchTerm = getSearchTerm(preset.name);
-    // Add illustration,vector tags to get a more stylized look
-    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},illustration,vector/all`;
+    // Add a random lock ID to make the image persistent
+    const lockId = Math.floor(Math.random() * 1000000);
+    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},illustration,vector/all?lock=${lockId}`;
     onAdd(preset.name, preset.icon, expiry, imageUrl);
   };
 
@@ -61,8 +62,9 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
     e.preventDefault();
     if (!name) return;
     const searchTerm = getSearchTerm(name);
-    // Add illustration,vector tags to get a more stylized look
-    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},illustration,vector/all`;
+    // Add a random lock ID to make the image persistent
+    const lockId = Math.floor(Math.random() * 1000000);
+    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},illustration,vector/all?lock=${lockId}`;
     onAdd(name, '🍽️', date, imageUrl);
     setName('');
     setShowManual(false);
