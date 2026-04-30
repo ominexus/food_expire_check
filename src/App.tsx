@@ -32,14 +32,14 @@ function App() {
 
       if (error) throw error;
       setIngredients(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching ingredients:', error);
-      // Mock data for demo if Supabase is not connected
-      if (!import.meta.env.VITE_SUPABASE_URL) {
+      alert('Database connection error: ' + (error.message || 'Unknown error'));
+      
+      // Only use mock data if no keys are provided at all
+      if (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('your_supabase')) {
         setIngredients([
-          { id: '1', name: 'Milk', category: '🥛', expires_at: new Date(Date.now() + 2*24*60*60*1000).toISOString(), is_consumed: false, image_url: 'https://loremflickr.com/300/300/milk,food/all' },
-          { id: '2', name: 'Spinach', category: '🥬', expires_at: new Date(Date.now() - 1*24*60*60*1000).toISOString(), is_consumed: false, image_url: 'https://loremflickr.com/300/300/spinach,food/all' },
-          { id: '3', name: 'Eggs', category: '🥚', expires_at: new Date(Date.now() + 10*24*60*60*1000).toISOString(), is_consumed: false, image_url: 'https://loremflickr.com/300/300/eggs,food/all' },
+          { id: '1', name: 'Milk (Demo)', category: '🥛', expires_at: new Date(Date.now() + 2*24*60*60*1000).toISOString(), is_consumed: false, image_url: 'https://loremflickr.com/300/300/milk,illustration,vector/all' },
         ]);
       }
     } finally {
@@ -57,11 +57,15 @@ function App() {
         .select();
 
       if (error) throw error;
-      if (data) setIngredients(prev => [...prev, data[0]].sort((a, b) => a.expires_at.localeCompare(b.expires_at)));
-    } catch (error) {
+      if (data) {
+        setIngredients(prev => [...prev, data[0]].sort((a, b) => a.expires_at.localeCompare(b.expires_at)));
+      }
+    } catch (error: any) {
       console.error('Error adding ingredient:', error);
-      // Local update for demo
-      const mockNew = { id: Math.random().toString(), name, category, expires_at: expiresAt, is_consumed: false, image_url: imageUrl };
+      alert('Failed to save to database: ' + (error.message || 'Unknown error'));
+      
+      // Local fallback for UI testing
+      const mockNew = { id: Math.random().toString(), name: name + ' (Not Saved)', category, expires_at: expiresAt, is_consumed: false, image_url: imageUrl };
       setIngredients(prev => [...prev, mockNew].sort((a, b) => a.expires_at.localeCompare(b.expires_at)));
     }
   }
