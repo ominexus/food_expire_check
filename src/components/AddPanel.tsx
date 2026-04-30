@@ -15,21 +15,52 @@ interface Props {
   onAdd: (name: string, category: string, expiresAt: string, imageUrl?: string) => void;
 }
 
+const KOREAN_TO_ENGLISH: Record<string, string> = {
+  '우유': 'milk',
+  '달걀': 'eggs',
+  '계란': 'eggs',
+  '고기': 'meat',
+  '소고기': 'beef',
+  '돼지고기': 'pork',
+  '닭고기': 'chicken',
+  '야채': 'vegetables',
+  '채소': 'vegetables',
+  '빵': 'bread',
+  '과일': 'fruit',
+  '사과': 'apple',
+  '바나나': 'banana',
+  '양파': 'onion',
+  '마늘': 'garlic',
+  '대파': 'green onion',
+  '치즈': 'cheese',
+  '요거트': 'yogurt',
+  '생선': 'fish',
+  '김치': 'kimchi',
+  '밥': 'rice',
+};
+
 export const AddPanel: React.FC<Props> = ({ onAdd }) => {
   const [name, setName] = useState('');
   const [date, setDate] = useState(getExpiryFromDays(7));
   const [showManual, setShowManual] = useState(false);
 
+  const getSearchTerm = (input: string) => {
+    const trimmed = input.trim();
+    return KOREAN_TO_ENGLISH[trimmed] || trimmed;
+  };
+
   const handlePresetClick = (preset: typeof PRESETS[0]) => {
     const expiry = getExpiryFromDays(preset.days);
-    const imageUrl = `https://loremflickr.com/300/300/${preset.name.toLowerCase()},food/all`;
+    const searchTerm = getSearchTerm(preset.name);
+    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},food/all`;
     onAdd(preset.name, preset.icon, expiry, imageUrl);
   };
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
-    const imageUrl = `https://loremflickr.com/300/300/${name.toLowerCase()},food/all`;
+    const searchTerm = getSearchTerm(name);
+    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},food/all`;
     onAdd(name, '🍽️', date, imageUrl);
     setName('');
     setShowManual(false);
