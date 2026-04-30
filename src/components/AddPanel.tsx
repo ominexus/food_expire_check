@@ -1,72 +1,46 @@
 import React, { useState } from 'react';
 import { getExpiryFromDays } from '../utils/date-utils';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Loader2 } from 'lucide-react';
+import { fetchFoodImage } from '../utils/image-service';
 
 const PRESETS = [
-  { name: 'Milk', days: 7, icon: '🥛' },
-  { name: 'Eggs', days: 14, icon: '🥚' },
-  { name: 'Meat', days: 3, icon: '🥩' },
-  { name: 'Veg', days: 5, icon: '🥦' },
-  { name: 'Bread', days: 4, icon: '🍞' },
-  { name: 'Fruit', days: 7, icon: '🍎' },
+  { name: '우유', days: 7, icon: '🥛' },
+  { name: '계란', days: 14, icon: '🥚' },
+  { name: '고기', days: 3, icon: '🥩' },
+  { name: '야채', days: 5, icon: '🥦' },
+  { name: '빵', days: 4, icon: '🍞' },
+  { name: '과일', days: 7, icon: '🍎' },
 ];
 
 interface Props {
   onAdd: (name: string, category: string, expiresAt: string, imageUrl?: string) => void;
 }
 
-const KOREAN_TO_ENGLISH: Record<string, string> = {
-  '우유': 'milk',
-  '달걀': 'eggs',
-  '계란': 'eggs',
-  '고기': 'meat',
-  '소고기': 'beef',
-  '돼지고기': 'pork',
-  '닭고기': 'chicken',
-  '야채': 'vegetables',
-  '채소': 'vegetables',
-  '빵': 'bread',
-  '과일': 'fruit',
-  '사과': 'apple',
-  '바나나': 'banana',
-  '양파': 'onion',
-  '마늘': 'garlic',
-  '대파': 'green onion',
-  '치즈': 'cheese',
-  '요거트': 'yogurt',
-  '생선': 'fish',
-  '김치': 'kimchi',
-  '밥': 'rice',
-};
-
 export const AddPanel: React.FC<Props> = ({ onAdd }) => {
   const [name, setName] = useState('');
   const [date, setDate] = useState(getExpiryFromDays(7));
   const [showManual, setShowManual] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const getSearchTerm = (input: string) => {
-    const trimmed = input.trim();
-    return KOREAN_TO_ENGLISH[trimmed] || trimmed;
-  };
-
-  const handlePresetClick = (preset: typeof PRESETS[0]) => {
+  const handlePresetClick = async (preset: typeof PRESETS[0]) => {
+    if (isSearching) return;
+    setIsSearching(true);
     const expiry = getExpiryFromDays(preset.days);
-    const searchTerm = getSearchTerm(preset.name);
-    // Add a random lock ID to make the image persistent
-    const lockId = Math.floor(Math.random() * 1000000);
-    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},illustration,vector/all?lock=${lockId}`;
+    const imageUrl = await fetchFoodImage(preset.name);
     onAdd(preset.name, preset.icon, expiry, imageUrl);
+    setIsSearching(false);
   };
 
-  const handleManualSubmit = (e: React.FormEvent) => {
+  const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name) return;
-    const searchTerm = getSearchTerm(name);
-    // Add a random lock ID to make the image persistent
-    const lockId = Math.floor(Math.random() * 1000000);
-    const imageUrl = `https://loremflickr.com/300/300/${encodeURIComponent(searchTerm)},illustration,vector/all?lock=${lockId}`;
+    if (!name || isSearching) return;
+    
+    setIsSearching(true);
+    const imageUrl = await fetchFoodImage(name);
     onAdd(name, '🍽️', date, imageUrl);
+    
     setName('');
+    setIsSearching(false);
     setShowManual(false);
   };
 
@@ -76,6 +50,7 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
         {PRESETS.map((preset) => (
           <button
             key={preset.name}
+            disabled={isSearching}
             onClick={() => handlePresetClick(preset)}
             style={{
               display: 'flex',
@@ -85,7 +60,8 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
               border: '1px solid #e2e8f0',
               borderRadius: '8px',
               background: 'white',
-              cursor: 'pointer'
+              cursor: isSearching ? 'not-allowed' : 'pointer',
+              opacity: isSearching ? 0.7 : 1
             }}
           >
             <span style={{ fontSize: '1.5rem' }}>{preset.icon}</span>
@@ -97,6 +73,7 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
       {!showManual ? (
         <button
           onClick={() => setShowManual(true)}
+          disabled={isSearching}
           style={{
             width: '100%',
             display: 'flex',
@@ -108,11 +85,11 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
             color: 'white',
             border: 'none',
             borderRadius: '8px',
-            cursor: 'pointer'
+            cursor: isSearching ? 'not-allowed' : 'pointer'
           }}
         >
-          <PlusCircle size={20} />
-          <span>Manual Add</span>
+          {isSearching ? <Loader2 className="animate-spin" size={20} /> : <PlusCircle size={20} />}
+          <span>{isSearching ? 'Searching Image...' : 'Manual Add'}</span>
         </button>
       ) : (
         <form onSubmit={handleManualSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -120,7 +97,7 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Item name (e.g. Apple)"
+            placeholder="Item name (e.g. 사과)"
             style={{
               padding: '10px',
               borderRadius: '8px',
@@ -159,6 +136,7 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
             </button>
             <button
               type="submit"
+              disabled={isSearching}
               style={{
                 flex: 2,
                 padding: '10px',
@@ -166,10 +144,15 @@ export const AddPanel: React.FC<Props> = ({ onAdd }) => {
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
-                cursor: 'pointer'
+                cursor: isSearching ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
               }}
             >
-              Add Item
+              {isSearching && <Loader2 className="animate-spin" size={18} />}
+              {isSearching ? 'Adding...' : 'Add Item'}
             </button>
           </div>
         </form>
